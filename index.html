@@ -100,13 +100,24 @@
     -webkit-backdrop-filter: blur(8px);
   }
 
-  .wordmark {
-    font-family: var(--body);
-    font-weight: 700;
-    font-size: 14px;
+  .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--text);
+    color: var(--bg);
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: 13px;
     letter-spacing: 0.02em;
-    white-space: nowrap;
+    flex-shrink: 0;
+    transition: opacity 0.2s ease;
   }
+
+  .logo:hover { opacity: 0.8; }
 
   .nav-pills {
     display: flex;
@@ -144,7 +155,7 @@
   @media (max-width: 640px) {
     :root { --nav-h: 72px; }
     header.nav { padding: 16px 16px; }
-    .wordmark { font-size: 12px; flex-shrink: 0; }
+    .logo { width: 32px; height: 32px; font-size: 12px; }
     .nav-pills { gap: 6px; }
     .pill { padding: 6px 11px; font-size: 9.5px; flex-shrink: 0; }
   }
@@ -165,15 +176,6 @@
     display: inline-block;
   }
 
-  .hero-heading sup {
-    font-size: 0.16em;
-    font-weight: 500;
-    top: -1.6em;
-    position: relative;
-    margin-left: 0.08em;
-    color: var(--muted);
-  }
-
   .hero-sub {
     margin-top: 20px;
     font-size: clamp(14px, 1.6vw, 18px);
@@ -182,12 +184,6 @@
     max-width: 40ch;
   }
 
-  .pill-row {
-    margin-top: 40px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
 
   /* ---------- Reveal ---------- */
   /* Visible by default; JS (below) opts elements into the fade/rise and
@@ -252,12 +248,6 @@
   }
 
   .about-copy p + p { margin-top: 16px; }
-
-  .involvement {
-    margin-top: 24px;
-    font-size: 13px;
-    color: var(--muted);
-  }
 
   .meta-row {
     margin-top: 48px;
@@ -336,13 +326,90 @@
   .exp-dates {
     font-size: 12px;
     color: var(--muted);
+  }
+
+  .exp-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
     flex: 0 0 auto;
+  }
+
+  /* details/summary: the whole row toggles the description bullets */
+  .exp-item { display: block; }
+
+  .exp-item summary.exp-row {
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .exp-item summary.exp-row::-webkit-details-marker,
+  .exp-item summary.exp-row::marker {
+    display: none;
+    content: '';
+  }
+
+  .exp-item summary.exp-row:hover .exp-company { color: var(--muted); }
+  .exp-item summary.exp-row:hover .exp-toggle { border-color: var(--text); }
+
+  .exp-toggle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--pill-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: var(--muted);
+    transition: transform 0.25s ease, border-color 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .exp-item[open] .exp-toggle {
+    transform: rotate(45deg);
+  }
+
+  .exp-details {
+    padding: 0 0 32px;
+    max-width: 68ch;
+  }
+
+  .exp-details ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .exp-details li {
+    font-size: 14px;
+    line-height: 1.5;
+    padding-left: 20px;
+    position: relative;
+  }
+
+  .exp-details li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--muted);
+  }
+
+  @keyframes exp-details-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .exp-item[open] .exp-details {
+    animation: exp-details-in 0.25s ease;
   }
 
   @media (max-width: 700px) {
     .exp-row { flex-direction: column; align-items: flex-start; gap: 10px; }
     .exp-company { flex: 0 0 auto; }
     .exp-meta { flex: 0 0 auto; justify-content: flex-start; gap: 28px; width: 100%; }
+    .exp-right { width: 100%; justify-content: space-between; }
   }
 
   /* ---------- Projects ---------- */
@@ -454,16 +521,7 @@
     margin-bottom: 16px;
   }
 
-  .row-meta {
-    display: flex;
-    gap: 36px;
-    margin: 20px 0 24px;
-    flex-wrap: wrap;
-  }
-
-  .row-year { font-size: 13px; color: var(--muted); }
-
-  .row-link { display: inline-flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 500; }
+  .row-link { display: inline-flex; align-items: center; gap: 12px; margin-top: 20px; font-size: 13px; font-weight: 500; }
   .row-link .arrow-btn { width: 40px; height: 40px; background: var(--pill-bg); border: 1px solid var(--pill-border); font-size: 15px; }
   a:hover .row-link .arrow-btn { background: var(--text); color: var(--bg); }
 
@@ -502,7 +560,7 @@
     font-size: clamp(20px, 2.6vw, 26px);
   }
 
-  .grid-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+  .grid-meta { display: flex; justify-content: flex-end; align-items: center; margin-top: 8px; }
 
   @media (max-width: 860px) {
     .proj-grid { grid-template-columns: 1fr 1fr; }
@@ -547,12 +605,119 @@
     flex-wrap: wrap;
     gap: 8px;
   }
+
+  /* ---------- Project overlay ---------- */
+  .proj-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(17, 17, 17, 0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .proj-overlay[hidden] { display: flex; pointer-events: none; }
+  .proj-overlay.is-open { opacity: 1; }
+  .proj-overlay.is-open[hidden] { display: flex; }
+
+  .proj-modal {
+    position: relative;
+    width: 100%;
+    max-width: 640px;
+    max-height: 88vh;
+    overflow-y: auto;
+    background: var(--bg);
+    border-radius: 8px;
+    transform: translateY(16px) scale(0.98);
+    transition: transform 0.25s ease;
+  }
+
+  .proj-overlay.is-open .proj-modal {
+    transform: translateY(0) scale(1);
+  }
+
+  .proj-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 2;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--text);
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transform: rotate(45deg);
+  }
+
+  .proj-modal-close:hover { background: #ffffff; }
+
+  .proj-modal-media {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: linear-gradient(150deg, #d4d0c3 0%, #8f8a72 100%);
+    border-radius: 8px 8px 0 0;
+    overflow: hidden;
+  }
+
+  .proj-modal-media img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .proj-modal-body { padding: 32px clamp(20px, 4vw, 40px) 40px; }
+
+  .proj-modal-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .proj-modal-title {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(28px, 5vw, 40px);
+  }
+
+  .proj-modal-meta {
+    display: flex;
+    gap: 12px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+
+  .proj-modal-desc {
+    margin-top: 20px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .proj-modal-link { margin-top: 28px; display: inline-flex; }
 </style>
 </head>
 <body>
 
 <header class="nav">
-  <a class="wordmark" href="#top">TYLER QUACH</a>
+  <a class="logo" href="#top" aria-label="Tyler Quach — back to top">TQ</a>
   <nav class="nav-pills">
     <a class="pill" href="#about">About</a>
     <a class="pill" href="#experience">Experience</a>
@@ -565,14 +730,8 @@
 
   <!-- Hero -->
   <section id="hero" class="hero page page--center">
-    <h1 class="hero-heading">TYLER QUACH<sup>27</sup></h1>
-    <p class="hero-sub">CS @ Oregon State — ML &amp; software engineering</p>
-    <div class="pill-row">
-      <a class="pill" href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
-      <a class="pill" href="https://linkedin.com/" target="_blank" rel="noopener">LinkedIn</a>
-      <a class="pill" href="./resume.pdf" target="_blank" rel="noopener">Resume</a>
-      <a class="pill" href="mailto:tylertq283@gmail.com">Email</a>
-    </div>
+    <h1 class="hero-heading">TYLER QUACH</h1>
+    <p class="hero-sub">Senior studying CS at Oregon State</p>
   </section>
 
   <div class="hairline" style="margin-top: 64px;"></div>
@@ -587,25 +746,6 @@
       <div class="about-copy reveal">
         <p>I like building things that touch the real world — farms, flights, campuses — and finding the calm, curious way through a hard problem. Most of my work sits at the intersection of ML and software: systems that reason, not just predict.</p>
         <p>Outside of code, I'm usually planning the next trip. Eleven-plus countries in and still adding pins to the map.</p>
-        <div class="involvement">On campus: GDG · App Dev Club · VLC</div>
-        <div class="meta-row">
-          <div class="meta-pair">
-            <div class="label">Based in</div>
-            <div class="value">Corvallis, OR</div>
-          </div>
-          <div class="meta-pair">
-            <div class="label">Studying</div>
-            <div class="value">Computer Science</div>
-          </div>
-          <div class="meta-pair">
-            <div class="label">Focus</div>
-            <div class="value">ML &amp; Software Eng.</div>
-          </div>
-          <div class="meta-pair">
-            <div class="label">Countries visited</div>
-            <div class="value">11+</div>
-          </div>
-        </div>
       </div>
     </div>
   </section>
@@ -617,70 +757,99 @@
     <div class="section-head reveal">
       <h2 class="section-title">Experience</h2>
     </div>
+    <div class="label" style="margin: -24px 0 24px;">Click a role to expand it</div>
 
     <div class="hairline"></div>
-    <div class="exp-row reveal">
-      <div class="exp-company">Deloitte</div>
-      <div class="exp-meta">
-        <div class="meta-pair">
-          <div class="label">Role</div>
-          <div class="value">Software Engineering Intern</div>
+    <details class="exp-item reveal">
+      <summary class="exp-row">
+        <div class="exp-company">Oregon State University</div>
+        <div class="exp-meta">
+          <div class="meta-pair">
+            <div class="label">Role</div>
+            <div class="value">Machine Learning Research Assistant</div>
+          </div>
         </div>
-        <div class="meta-pair">
-          <div class="label">Stack</div>
-          <div class="value">TBD</div>
+        <div class="exp-right">
+          <div class="exp-dates">Dec 2025 — Present</div>
+          <div class="exp-toggle" aria-hidden="true"><span>+</span></div>
         </div>
+      </summary>
+      <div class="exp-details">
+        <ul>
+          <li>Engineered bash-based data validation and automation pipelines to test model training across multiple real-world datasets under varying missing-data conditions, ensuring consistent, reproducible results on HPC infrastructure.</li>
+          <li>Conducted literature review and stress-tested research hypotheses for a novel data-repair framework, benchmarking its assumptions against existing imputation methods to help refine the project's core contributions.</li>
+        </ul>
       </div>
-      <div class="exp-dates">2025</div>
-    </div>
+    </details>
     <div class="hairline"></div>
 
-    <div class="exp-row reveal">
-      <div class="exp-company">Oregon State University</div>
-      <div class="exp-meta">
-        <div class="meta-pair">
-          <div class="label">Role</div>
-          <div class="value">ML Research Assistant</div>
+    <details class="exp-item reveal">
+      <summary class="exp-row">
+        <div class="exp-company">Oregon State EECS</div>
+        <div class="exp-meta">
+          <div class="meta-pair">
+            <div class="label">Role</div>
+            <div class="value">Undergraduate Learning Assistant</div>
+          </div>
         </div>
-        <div class="meta-pair">
-          <div class="label">Stack</div>
-          <div class="value">Neural-symbolic constraints, MoE routing</div>
+        <div class="exp-right">
+          <div class="exp-dates">Dec 2025 — Present</div>
+          <div class="exp-toggle" aria-hidden="true"><span>+</span></div>
         </div>
+      </summary>
+      <div class="exp-details">
+        <ul>
+          <li>Led weekly recitation sessions for 30+ students, reinforcing concepts including object-oriented programming.</li>
+          <li>Held office hours to debug code, review concepts for exams, and guide students toward problem-solving assignments.</li>
+        </ul>
       </div>
-      <div class="exp-dates">2024 — Present</div>
-    </div>
+    </details>
     <div class="hairline"></div>
 
-    <div class="exp-row reveal">
-      <div class="exp-company">Oregon State EECS</div>
-      <div class="exp-meta">
-        <div class="meta-pair">
-          <div class="label">Role</div>
-          <div class="value">Undergraduate Learning Assistant, CS 162</div>
+    <details class="exp-item reveal">
+      <summary class="exp-row">
+        <div class="exp-company">Deloitte</div>
+        <div class="exp-meta">
+          <div class="meta-pair">
+            <div class="label">Role</div>
+            <div class="value">Software Engineering Intern</div>
+          </div>
         </div>
-        <div class="meta-pair">
-          <div class="label">Stack</div>
-          <div class="value">C, Systems Programming</div>
+        <div class="exp-right">
+          <div class="exp-dates">Jun 2026 — Aug 2026</div>
+          <div class="exp-toggle" aria-hidden="true"><span>+</span></div>
         </div>
+      </summary>
+      <div class="exp-details">
+        <ul>
+          <li>Developed a client dashboard for metadata intake across dozens of fields, feeding a daily sync pipeline pushing owner-validated records into Collibra to support the data governance program, cutting manual processing time by ~35%.</li>
+          <li>Built a RAID log and dashboard to track risks, assumptions, issues, and dependencies, surfacing blockers early and keeping the team, client, and senior leadership aligned on project status throughout the engagement.</li>
+        </ul>
       </div>
-      <div class="exp-dates">2024</div>
-    </div>
+    </details>
     <div class="hairline"></div>
 
-    <div class="exp-row reveal">
-      <div class="exp-company">Coordinator</div>
-      <div class="exp-meta">
-        <div class="meta-pair">
-          <div class="label">Role</div>
-          <div class="value">Mobile Development Intern</div>
+    <details class="exp-item reveal">
+      <summary class="exp-row">
+        <div class="exp-company">Coordinator</div>
+        <div class="exp-meta">
+          <div class="meta-pair">
+            <div class="label">Role</div>
+            <div class="value">Mobile Development Intern</div>
+          </div>
         </div>
-        <div class="meta-pair">
-          <div class="label">Stack</div>
-          <div class="value">iOS, Swift — NVIDIA Inception startup</div>
+        <div class="exp-right">
+          <div class="exp-dates">Jan 2026 — Apr 2026</div>
+          <div class="exp-toggle" aria-hidden="true"><span>+</span></div>
         </div>
+      </summary>
+      <div class="exp-details">
+        <ul>
+          <li>Headed the migration of an existing web application to a cross-platform mobile app using React Native and Expo, ensuring functionality and performance across iOS and Android while maintaining feature parity with the web product.</li>
+          <li>Integrated and managed backend connectivity with Better Auth and TanStack Query, implementing secure authentication flows, efficient API communication, and reliable client-side data caching tailored for mobile architecture.</li>
+        </ul>
       </div>
-      <div class="exp-dates">2023</div>
-    </div>
+    </details>
     <div class="hairline"></div>
   </section>
 
@@ -690,98 +859,74 @@
       <h2 class="section-title">Projects<sup>7</sup></h2>
     </div>
 
-    <a class="featured-card reveal" href="https://github.com/" target="_blank" rel="noopener">
+    <a class="featured-card reveal" href="https://github.com/Splash791" target="_blank" rel="noopener" data-project="farmos">
       <img class="proj-img" src="images/farmos.jpg" alt="" onerror="this.style.display='none'">
       <div class="featured-top"><div class="arrow-btn"><span>↗</span></div></div>
       <div class="featured-inner">
-        <div class="featured-title">FarmOS</div>
-        <div class="featured-year">2024 · STACK — TBD</div>
+        <div class="featured-title">3D Agriculture Dashboard</div>
+        <div class="featured-year">Quachacks 3.0 — Gemini API Track Winner</div>
       </div>
     </a>
 
     <div class="proj-rows">
-      <a class="row-card reveal" href="https://github.com/" target="_blank" rel="noopener">
+      <a class="row-card reveal" href="https://github.com/Splash791" target="_blank" rel="noopener" data-project="hallucination">
         <div class="row-media grad-1">
           <img class="proj-img" src="images/hallucination-detector.jpg" alt="" onerror="this.style.display='none'">
         </div>
         <div class="row-text">
           <div class="row-title">AI Hallucination Detector</div>
-          <div class="row-meta">
-            <div class="meta-pair">
-              <div class="label">Stack</div>
-              <div class="value">TBD</div>
-            </div>
-            <div class="row-year">2024</div>
-          </div>
           <div class="row-link"><div class="arrow-btn"><span>↗</span></div> View project</div>
         </div>
       </a>
 
-      <a class="row-card reveal" href="https://github.com/" target="_blank" rel="noopener">
+      <a class="row-card reveal" href="https://github.com/Splash791" target="_blank" rel="noopener" data-project="aerosearch">
         <div class="row-media grad-2">
           <img class="proj-img" src="images/aerosearch.jpg" alt="" onerror="this.style.display='none'">
         </div>
         <div class="row-text">
-          <div class="row-title">AeroSearch</div>
-          <div class="row-meta">
-            <div class="meta-pair">
-              <div class="label">Stack</div>
-              <div class="value">TBD</div>
-            </div>
-            <div class="row-year">2023</div>
-          </div>
+          <div class="row-title">Real-Time Aviation Intelligence</div>
           <div class="row-link"><div class="arrow-btn"><span>↗</span></div> View project</div>
         </div>
       </a>
 
-      <a class="row-card reveal" href="https://github.com/" target="_blank" rel="noopener">
+      <a class="row-card reveal" href="https://github.com/Splash791" target="_blank" rel="noopener" data-project="gate-tracker">
         <div class="row-media grad-3">
           <img class="proj-img" src="images/gate-tracker.jpg" alt="" onerror="this.style.display='none'">
         </div>
         <div class="row-text">
           <div class="row-title">Gate Tracker</div>
-          <div class="row-meta">
-            <div class="meta-pair">
-              <div class="label">Stack</div>
-              <div class="value">TBD</div>
-            </div>
-            <div class="row-year">2023</div>
-          </div>
           <div class="row-link"><div class="arrow-btn"><span>↗</span></div> View project</div>
         </div>
       </a>
     </div>
 
     <div class="proj-grid">
-      <a class="grid-card reveal" href="https://github.com/" target="_blank" rel="noopener">
+      <a class="grid-card reveal" href="https://github.com/Splash791" target="_blank" rel="noopener" data-project="shell">
         <div class="grid-media grad-4">
           <img class="proj-img" src="images/shell.jpg" alt="" onerror="this.style.display='none'">
         </div>
         <div class="grid-title">Small Shell in C</div>
         <div class="grid-meta">
-          <div class="row-year">2023 · STACK — C</div>
           <div class="arrow-btn" style="width:36px;height:36px;font-size:13px;"><span>↗</span></div>
         </div>
       </a>
 
-      <a class="grid-card reveal" href="https://github.com/" target="_blank" rel="noopener">
+      <a class="grid-card reveal" href="https://github.com/Splash791" target="_blank" rel="noopener" data-project="nba">
         <div class="grid-media grad-5">
           <img class="proj-img" src="images/nba.jpg" alt="" onerror="this.style.display='none'">
         </div>
         <div class="grid-title">NBA Player Efficiency Index</div>
         <div class="grid-meta">
-          <div class="row-year">2023 · STACK — TBD</div>
           <div class="arrow-btn" style="width:36px;height:36px;font-size:13px;"><span>↗</span></div>
         </div>
       </a>
 
-      <a class="grid-card reveal" href="https://github.com/" target="_blank" rel="noopener">
+      <a class="grid-card reveal" href="https://github.com/Splash791" target="_blank" rel="noopener" data-project="expense-tracker">
         <div class="grid-media grad-6">
           <img class="proj-img" src="images/expense-tracker.jpg" alt="" onerror="this.style.display='none'">
         </div>
         <div class="grid-title">OCR Expense Tracker</div>
         <div class="grid-meta">
-          <div class="row-year">2022 · STACK — TBD</div>
           <div class="arrow-btn" style="width:36px;height:36px;font-size:13px;"><span>↗</span></div>
         </div>
       </a>
@@ -837,10 +982,10 @@
   <!-- Footer / Contact -->
   <footer id="contact" class="page page--center">
     <h2 class="say-hi reveal">SAY HI</h2>
-    <div class="footer-email reveal"><a href="mailto:tylertq283@gmail.com">tylertq283@gmail.com</a></div>
+    <div class="footer-email reveal"><a href="mailto:tylerquach17@gmail.com">tylerquach17@gmail.com</a></div>
     <div class="footer-links reveal">
-      <a class="pill" href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
-      <a class="pill" href="https://linkedin.com/" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="pill" href="https://github.com/Splash791" target="_blank" rel="noopener">GitHub</a>
+      <a class="pill" href="https://linkedin.com/in/tyler-quach-/" target="_blank" rel="noopener">LinkedIn</a>
       <a class="pill" href="./resume.pdf" target="_blank" rel="noopener">Resume</a>
     </div>
     <div class="hairline" style="margin-top: 56px;"></div>
@@ -852,8 +997,143 @@
 
 </main>
 
+<!-- Project overlay -->
+<div class="proj-overlay" id="proj-overlay" hidden>
+  <div class="proj-modal" role="dialog" aria-modal="true" aria-labelledby="proj-modal-title">
+    <button class="proj-modal-close" id="proj-modal-close" type="button" aria-label="Close">
+      <span>+</span>
+    </button>
+    <div class="proj-modal-media">
+      <img id="proj-modal-img" src="" alt="" onerror="this.style.display='none'">
+    </div>
+    <div class="proj-modal-body">
+      <div class="proj-modal-top">
+        <h3 class="proj-modal-title" id="proj-modal-title"></h3>
+        <div class="proj-modal-meta">
+          <span id="proj-modal-year"></span>
+          <span id="proj-modal-stack"></span>
+        </div>
+      </div>
+      <p class="proj-modal-desc" id="proj-modal-desc"></p>
+      <a class="pill proj-modal-link" id="proj-modal-link" href="#" target="_blank" rel="noopener">View on GitHub ↗</a>
+    </div>
+  </div>
+</div>
+
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Project overlay: click a project card to see its image, a short
+  // description, and a link to GitHub, instead of leaving the page.
+  // Falls back to the card's normal href (opens GitHub in a new tab)
+  // if JS fails to run.
+  (function () {
+    var PROJECTS = {
+      'farmos': {
+        title: '3D Agriculture Dashboard', year: '2026',
+        stack: 'Python, React, TypeScript, Google ADK, Gemini API, Gaussian Splatting',
+        image: 'images/farmos.jpg',
+        github: 'https://github.com/Splash791',
+        description: 'Quachacks 3.0 — Gemini API Track Winner. Built a live dashboard with weed detection, treatment dispatch, and a soil sensor heatmap, using Google ADK agents. Created a Gaussian Splat digital twin of a real farm with a two-stage Gemini vision pipeline for weed and pest detection.'
+      },
+      'hallucination': {
+        title: 'AI Hallucination Detector', year: '2026',
+        stack: 'TypeScript, React, Node.js, TailwindCSS, ShadCN, AWS, OpenRouter',
+        image: 'images/hallucination-detector.jpg',
+        github: 'https://github.com/Splash791',
+        description: 'Designed a multi-model pipeline using generator/judge models to detect hallucinations and produce reliability scores. Implemented an AWS backend with GitHub Actions and a frontend, optimizing latency and token usage.'
+      },
+      'aerosearch': {
+        title: 'Real-Time Aviation Intelligence', year: '2026',
+        stack: 'Python, FastAPI, PostgreSQL, pgvector, Redis, React, TailwindCSS, Docker',
+        image: 'images/aerosearch.jpg',
+        github: 'https://github.com/Splash791',
+        description: 'Indexed 300k+ aircraft records with pgvector similarity search and Redis caching, achieving sub-100ms query latency. Built an ingestion pipeline syncing live ADS-B flight positions and airline data with automated scheduling.'
+      },
+      'gate-tracker': {
+        title: 'Gate Tracker', year: '2023', stack: 'TBD',
+        image: 'images/gate-tracker.jpg',
+        github: 'https://github.com/Splash791',
+        description: 'Placeholder description — swap in your own. A mobile app for tracking flight gate changes and departure updates in real time.'
+      },
+      'shell': {
+        title: 'Small Shell in C', year: '2023', stack: 'C',
+        image: 'images/shell.jpg',
+        github: 'https://github.com/Splash791',
+        description: 'Placeholder description — swap in your own. A Unix-style shell built from scratch in C, supporting piping, redirection, and built-in commands.'
+      },
+      'nba': {
+        title: 'NBA Player Efficiency Index', year: '2023', stack: 'TBD',
+        image: 'images/nba.jpg',
+        github: 'https://github.com/Splash791',
+        description: 'Placeholder description — swap in your own. A dashboard that computes and visualizes an efficiency metric for NBA players from season stats.'
+      },
+      'expense-tracker': {
+        title: 'OCR Expense Tracker', year: '2022', stack: 'TBD',
+        image: 'images/expense-tracker.jpg',
+        github: 'https://github.com/Splash791',
+        description: 'Placeholder description — swap in your own. An app that scans receipts with OCR and automatically logs and categorizes expenses.'
+      }
+    };
+
+    var overlay = document.getElementById('proj-overlay');
+    var modalImg = document.getElementById('proj-modal-img');
+    var modalTitle = document.getElementById('proj-modal-title');
+    var modalYear = document.getElementById('proj-modal-year');
+    var modalStack = document.getElementById('proj-modal-stack');
+    var modalDesc = document.getElementById('proj-modal-desc');
+    var modalLink = document.getElementById('proj-modal-link');
+    var closeBtn = document.getElementById('proj-modal-close');
+    if (!overlay) return;
+
+    var lastFocused = null;
+
+    function openModal(id) {
+      var p = PROJECTS[id];
+      if (!p) return;
+      modalImg.src = p.image;
+      modalImg.style.display = '';
+      modalImg.alt = p.title;
+      modalTitle.textContent = p.title;
+      modalYear.textContent = p.year;
+      modalStack.textContent = 'Stack — ' + p.stack;
+      modalDesc.textContent = p.description;
+      modalLink.href = p.github;
+
+      lastFocused = document.activeElement;
+      overlay.hidden = false;
+      // Next frame, so the opacity/transform transition actually runs.
+      requestAnimationFrame(function () { overlay.classList.add('is-open'); });
+      document.body.style.overflow = 'hidden';
+      closeBtn.focus();
+    }
+
+    function closeModal() {
+      overlay.classList.remove('is-open');
+      document.body.style.overflow = '';
+      setTimeout(function () { overlay.hidden = true; }, 200);
+      if (lastFocused && lastFocused.focus) lastFocused.focus();
+    }
+
+    document.querySelectorAll('[data-project]').forEach(function (card) {
+      card.addEventListener('click', function (e) {
+        // Let cmd/ctrl/shift/middle-click open the real link normally.
+        if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+        var id = card.getAttribute('data-project');
+        if (!PROJECTS[id]) return;
+        e.preventDefault();
+        openModal(id);
+      });
+    });
+
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) closeModal();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && overlay.classList.contains('is-open')) closeModal();
+    });
+  })();
 
   // Scroll-reveal: elements are visible by default; JS only adds the
   // animation class, so nothing breaks if this script fails to run.

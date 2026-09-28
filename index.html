@@ -172,7 +172,7 @@
   .hero-heading {
     font-family: var(--display);
     font-weight: 300;
-    line-height: 0.86;
+    line-height: 1.05;
     font-size: clamp(64px, 15vw, 200px);
     letter-spacing: -0.01em;
     position: relative;
@@ -189,7 +189,7 @@
 
   .hero-grid {
     display: grid;
-    grid-template-columns: 1.4fr 0.6fr;
+    grid-template-columns: 1.1fr 0.9fr;
     align-items: center;
     gap: clamp(32px, 6vw, 80px);
   }
@@ -197,7 +197,7 @@
   .hero-photo {
     position: relative;
     aspect-ratio: 4 / 5;
-    max-width: 320px;
+    max-width: 480px;
     width: 100%;
     justify-self: end;
     border-radius: 4px;
@@ -207,7 +207,7 @@
 
   @media (max-width: 860px) {
     .hero-grid { grid-template-columns: 1fr; }
-    .hero-photo { justify-self: start; max-width: 240px; order: 2; margin-top: 40px; }
+    .hero-photo { justify-self: start; max-width: 300px; order: 2; margin-top: 40px; }
     .hero-text { order: 1; }
   }
 

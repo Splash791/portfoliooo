@@ -189,7 +189,7 @@
 
   .hero-grid {
     display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
+    grid-template-columns: 0.85fr 1.15fr;
     align-items: center;
     gap: clamp(32px, 6vw, 80px);
   }
@@ -197,7 +197,7 @@
   .hero-photo {
     position: relative;
     aspect-ratio: 4 / 5;
-    max-width: 480px;
+    max-width: 620px;
     width: 100%;
     justify-self: end;
     border-radius: 4px;
@@ -293,65 +293,125 @@
   }
 
   /* ---------- Travel ---------- */
-  .travel-body { max-width: 760px; }
+  .travel-grid {
+    display: grid;
+    grid-template-columns: 0.7fr 1.3fr;
+    align-items: center;
+    gap: clamp(32px, 6vw, 80px);
+  }
+
+  .travel-text .section-title { margin-bottom: 20px; }
 
   .travel-copy {
     font-size: clamp(16px, 2vw, 20px);
     line-height: 1.55;
-    max-width: 56ch;
+    max-width: 44ch;
   }
 
-  .globe-wrap {
-    margin-top: 48px;
+  .globe-scene {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-self: end;
   }
 
+  /* A real 3D globe: no image, no library — .globe-3d is one
+     preserve-3d group that auto-rotates (and can be dragged), and
+     each pin is placed on the sphere's surface with actual spherical
+     coordinates (rotateY(lon) rotateX(-lat) translateZ(radius)).
+     backface-visibility hides a pin the instant its outward-facing
+     normal turns away from the camera, so pins correctly disappear
+     around the back as the globe turns. */
   .globe {
+    --globe-r: 220px;
     position: relative;
-    width: clamp(220px, 30vw, 340px);
-    aspect-ratio: 1 / 1;
+    width: calc(var(--globe-r) * 2);
+    height: calc(var(--globe-r) * 2);
+    max-width: 100%;
+    perspective: 1200px;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   .globe-sphere {
     position: absolute;
     inset: 0;
-    border-radius: 50%;
     overflow: hidden;
+    border-radius: 50%;
     background: radial-gradient(circle at 34% 30%, #e4e4e0 0%, #b9b9b2 38%, #86867d 72%, #55554f 100%);
     box-shadow: inset -18px -18px 50px rgba(0, 0, 0, 0.35), 0 24px 48px rgba(0, 0, 0, 0.14);
   }
 
-  /* A repeating stripe pattern clipped to the circle and slid
-     horizontally gives the impression of a rotating globe without any
-     3D library — just CSS. */
-  .globe-sphere::after {
-    content: '';
+  /* Continents: a landmass silhouette, duplicated side by side and
+     slid horizontally (classic marquee loop) so the texture itself
+     appears to scroll across the sphere — the same "rotating" cue a
+     flat CSS gradient can't give on its own, layered under the pins'
+     genuine 3D rotation above. */
+  .globe-map {
     position: absolute;
-    inset: -10% -40%;
-    background-image: repeating-linear-gradient(
-      90deg,
-      transparent 0,
-      transparent 14px,
-      rgba(255, 255, 255, 0.16) 14px,
-      rgba(255, 255, 255, 0.16) 15px
-    );
-    animation: globe-spin 14s linear infinite;
+    inset: 0;
+    display: flex;
+    width: 200%;
+    height: 100%;
+    mix-blend-mode: multiply;
+    opacity: 0.55;
+    animation: globe-map-scroll 26s linear infinite;
   }
 
-  .js .globe-sphere::after { animation-play-state: running; }
+  .globe-map svg {
+    width: 50%;
+    height: 100%;
+    flex-shrink: 0;
+    display: block;
+  }
 
-  @keyframes globe-spin {
+  .globe-map path { fill: #3a3a34; }
+
+  @keyframes globe-map-scroll {
     from { transform: translateX(0); }
-    to { transform: translateX(-120px); }
+    to { transform: translateX(-50%); }
+  }
+
+  .globe-3d {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    animation: globe-spin-3d 26s linear infinite;
+    cursor: grab;
+  }
+
+  .globe.is-dragging .globe-3d {
+    animation-play-state: paused;
+    cursor: grabbing;
+  }
+
+  /* Sits inside .globe-3d (which carries the auto-rotate animation)
+     and gets its own inline rotateY/rotateX from pointer-drag JS, so
+     dragging and auto-spin compose without fighting over one
+     `transform` value. */
+  .globe-manual {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+  }
+
+  @keyframes globe-spin-3d {
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(360deg); }
   }
 
   .globe-pin {
     position: absolute;
-    width: 26px;
-    height: 26px;
-    margin: -13px 0 0 -13px;
+    top: 50%;
+    left: 50%;
+    width: 28px;
+    height: 28px;
+    margin: -14px 0 0 -14px;
+    transform-style: preserve-3d;
+    transform: rotateY(var(--lon)) rotateX(calc(var(--lat) * -1)) translateZ(var(--globe-r));
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
     border: none;
     background: transparent;
     padding: 0;
@@ -383,9 +443,16 @@
     100% { box-shadow: 0 0 0 0 rgba(17, 17, 17, 0); }
   }
 
+  @media (max-width: 860px) {
+    .travel-grid { grid-template-columns: 1fr; }
+    .globe-scene { justify-self: center; margin-top: 40px; }
+    .globe { --globe-r: 130px; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .globe-sphere::after { animation: none; }
+    .globe-3d { animation: none; }
     .globe-pin-dot { animation: none; }
+    .globe-map { animation: none; }
   }
 
   /* ---------- Experience ---------- */
@@ -1036,23 +1103,46 @@
 
   <!-- Travel -->
   <section id="travel" class="page page--center">
-    <div class="section-head reveal">
-      <h2 class="section-title">Travel</h2>
-    </div>
-    <div class="travel-body">
-      <p class="travel-copy reveal">Always counting down to the next one — I plan trips the way I plan projects: pick a hard destination, figure out logistics later.</p>
-      <div class="globe-wrap reveal">
+    <div class="travel-grid">
+      <div class="travel-text">
+        <h2 class="section-title reveal">Travel</h2>
+        <p class="travel-copy reveal">I'm always looking for the next trip to book — I just love to travel.</p>
+      </div>
+      <div class="globe-scene reveal">
         <div class="globe" id="globe">
-          <div class="globe-sphere"></div>
-          <button class="globe-pin" type="button" style="top: 28%; left: 25%;" data-trip="canada" aria-label="Canada"><span class="globe-pin-dot"></span></button>
-          <button class="globe-pin" type="button" style="top: 22%; left: 38%;" data-trip="iceland" aria-label="Iceland"><span class="globe-pin-dot"></span></button>
-          <button class="globe-pin" type="button" style="top: 35%; left: 50%;" data-trip="italy" aria-label="Italy"><span class="globe-pin-dot"></span></button>
-          <button class="globe-pin" type="button" style="top: 30%; left: 68%;" data-trip="japan" aria-label="Japan"><span class="globe-pin-dot"></span></button>
-          <button class="globe-pin" type="button" style="top: 42%; left: 65%;" data-trip="south-korea" aria-label="South Korea"><span class="globe-pin-dot"></span></button>
-          <button class="globe-pin" type="button" style="top: 48%; left: 72%;" data-trip="thailand" aria-label="Thailand"><span class="globe-pin-dot"></span></button>
-          <button class="globe-pin" type="button" style="top: 62%; left: 30%;" data-trip="peru" aria-label="Peru"><span class="globe-pin-dot"></span></button>
+          <div class="globe-sphere">
+            <div class="globe-map" aria-hidden="true">
+              <svg viewBox="0 0 800 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M95,50 L180,38 L222,68 L232,128 L192,192 L138,198 L88,160 L68,100 Z" />
+                <path d="M188,214 L232,224 L248,282 L222,342 L196,378 L168,340 L162,270 Z" />
+                <path d="M388,44 L442,38 L462,70 L452,106 L410,112 L383,80 Z" />
+                <path d="M398,114 L462,108 L482,160 L472,232 L452,302 L420,332 L393,290 L382,198 L390,150 Z" />
+                <path d="M468,80 L542,38 L622,34 L702,60 L742,112 L722,172 L650,212 L558,226 L488,190 L463,140 Z" />
+                <path d="M648,270 L712,258 L752,286 L746,322 L698,336 L652,316 Z" />
+              </svg>
+              <svg viewBox="0 0 800 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M95,50 L180,38 L222,68 L232,128 L192,192 L138,198 L88,160 L68,100 Z" />
+                <path d="M188,214 L232,224 L248,282 L222,342 L196,378 L168,340 L162,270 Z" />
+                <path d="M388,44 L442,38 L462,70 L452,106 L410,112 L383,80 Z" />
+                <path d="M398,114 L462,108 L482,160 L472,232 L452,302 L420,332 L393,290 L382,198 L390,150 Z" />
+                <path d="M468,80 L542,38 L622,34 L702,60 L742,112 L722,172 L650,212 L558,226 L488,190 L463,140 Z" />
+                <path d="M648,270 L712,258 L752,286 L746,322 L698,336 L652,316 Z" />
+              </svg>
+            </div>
+          </div>
+          <div class="globe-3d" id="globeAuto">
+            <div class="globe-manual" id="globeManual">
+              <button class="globe-pin" type="button" style="--lon: -100deg; --lat: 55deg;" data-trip="canada" aria-label="Canada"><span class="globe-pin-dot"></span></button>
+              <button class="globe-pin" type="button" style="--lon: -19deg; --lat: 65deg;" data-trip="iceland" aria-label="Iceland"><span class="globe-pin-dot"></span></button>
+              <button class="globe-pin" type="button" style="--lon: 12deg; --lat: 42deg;" data-trip="italy" aria-label="Italy"><span class="globe-pin-dot"></span></button>
+              <button class="globe-pin" type="button" style="--lon: 138deg; --lat: 36deg;" data-trip="japan" aria-label="Japan"><span class="globe-pin-dot"></span></button>
+              <button class="globe-pin" type="button" style="--lon: 127deg; --lat: 37deg;" data-trip="south-korea" aria-label="South Korea"><span class="globe-pin-dot"></span></button>
+              <button class="globe-pin" type="button" style="--lon: 101deg; --lat: 15deg;" data-trip="thailand" aria-label="Thailand"><span class="globe-pin-dot"></span></button>
+              <button class="globe-pin" type="button" style="--lon: -75deg; --lat: -10deg;" data-trip="peru" aria-label="Peru"><span class="globe-pin-dot"></span></button>
+            </div>
+          </div>
         </div>
-        <div class="label" style="margin-top: 20px; text-align: center;">Click a pin to see the trip</div>
+        <div class="label" style="margin-top: 24px; text-align: center;">Drag to spin · click a pin to see the trip</div>
       </div>
     </div>
   </section>
@@ -1311,8 +1401,13 @@
       if (lastFocused && lastFocused.focus) lastFocused.focus();
     }
 
+    // A drag that moved more than a few px shouldn't also register as
+    // a pin click when the pointer happens to lift over one.
+    var dragMoved = false;
+
     document.querySelectorAll('.globe-pin').forEach(function (pin) {
       pin.addEventListener('click', function () {
+        if (dragMoved) return;
         openModal(pin.getAttribute('data-trip'));
       });
     });
@@ -1324,6 +1419,47 @@
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && overlay.classList.contains('is-open')) closeModal();
     });
+
+    // Drag-to-spin: a real pointer-driven rotation, layered on top of
+    // the CSS auto-rotate animation (paused while dragging) rather
+    // than fighting it for the same `transform`.
+    var globe = document.getElementById('globe');
+    var globeManual = document.getElementById('globeManual');
+    if (globe && globeManual && window.PointerEvent) {
+      var dragging = false;
+      var lastX = 0, lastY = 0;
+      var rotY = 0, rotX = 0;
+
+      globe.addEventListener('pointerdown', function (e) {
+        dragging = true;
+        dragMoved = false;
+        lastX = e.clientX;
+        lastY = e.clientY;
+        globe.classList.add('is-dragging');
+        globe.setPointerCapture(e.pointerId);
+      });
+
+      globe.addEventListener('pointermove', function (e) {
+        if (!dragging) return;
+        var dx = e.clientX - lastX;
+        var dy = e.clientY - lastY;
+        if (Math.abs(dx) + Math.abs(dy) > 3) dragMoved = true;
+        lastX = e.clientX;
+        lastY = e.clientY;
+        rotY += dx * 0.5;
+        rotX = Math.max(-70, Math.min(70, rotX - dy * 0.5));
+        globeManual.style.transform = 'rotateY(' + rotY + 'deg) rotateX(' + rotX + 'deg)';
+      });
+
+      function endDrag(e) {
+        if (!dragging) return;
+        dragging = false;
+        globe.classList.remove('is-dragging');
+        try { globe.releasePointerCapture(e.pointerId); } catch (err) {}
+      }
+      globe.addEventListener('pointerup', endDrag);
+      globe.addEventListener('pointercancel', endDrag);
+    }
   })();
 
   // Scroll-reveal: elements are visible by default; JS only adds the

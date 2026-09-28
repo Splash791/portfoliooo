@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<script>document.documentElement.classList.add('js');</script>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tyler Quach</title>
+<meta name="description" content="Tyler Quach — CS @ Oregon State. ML & software engineering.">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Antonio:wght@300;400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F3F3F1;
+    --text: #111111;
+    --muted: #8A8A8A;
+    --line: #DADAD6;
+    --pill-bg: #FFFFFF;
+    --pill-border: #E2E2DE;
+    --display: 'Antonio', 'Big Shoulders Display', 'Oswald', sans-serif;
+    --body: 'Inter', 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+    --gutter: clamp(20px, 5vw, 64px);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  img { display: block; max-width: 100%; }
+
+  a { color: inherit; text-decoration: none; }
+
+  section { padding: 0 var(--gutter); }
+
+  .label {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .hairline {
+    height: 1px;
+    background: var(--line);
+    width: 100%;
+  }
+
+  /* ---------- Nav ---------- */
+  header.nav {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 20px var(--gutter);
+    background: rgba(243, 243, 241, 0.82);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .wordmark {
+    font-family: var(--body);
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+
+  .nav-pills {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .nav-pills::-webkit-scrollbar { display: none; }
+
+  .pill {
+    background: var(--pill-bg);
+    border: 1px solid var(--pill-border);
+    border-radius: 100px;
+    padding: 8px 16px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+
+  .pill:hover {
+    border-color: var(--text);
+  }
+
+  @media (max-width: 640px) {
+    header.nav { padding: 16px 16px; }
+    .wordmark { font-size: 12px; flex-shrink: 0; }
+    .nav-pills { gap: 6px; }
+    .pill { padding: 6px 11px; font-size: 9.5px; flex-shrink: 0; }
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    padding-top: clamp(40px, 12vh, 120px);
+    padding-bottom: clamp(40px, 8vh, 80px);
+  }
+
+  .hero-heading {
+    font-family: var(--display);
+    font-weight: 300;
+    line-height: 0.86;
+    font-size: clamp(64px, 15vw, 200px);
+    letter-spacing: -0.01em;
+    position: relative;
+    display: inline-block;
+  }
+
+  .hero-heading sup {
+    font-size: 0.16em;
+    font-weight: 500;
+    top: -1.6em;
+    position: relative;
+    margin-left: 0.08em;
+    color: var(--muted);
+  }
+
+  .hero-sub {
+    margin-top: 20px;
+    font-size: clamp(14px, 1.6vw, 18px);
+    color: var(--muted);
+    font-style: italic;
+    max-width: 40ch;
+  }
+
+  .pill-row {
+    margin-top: 40px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  /* ---------- Reveal ---------- */
+  /* Visible by default; JS (below) opts elements into the fade/rise and
+     then triggers it via IntersectionObserver, so nothing breaks if the
+     script fails to load or run. */
+  .js .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .js .reveal.in-view {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---------- Section heading with superscript count ---------- */
+  .section-head {
+    display: flex;
+    align-items: flex-start;
+    padding: 96px 0 40px;
+  }
+
+  .section-title {
+    font-family: var(--display);
+    font-weight: 300;
+    font-size: clamp(44px, 9vw, 96px);
+    line-height: 0.9;
+    letter-spacing: -0.01em;
+    position: relative;
+  }
+
+  .section-title sup {
+    font-size: 0.24em;
+    font-weight: 500;
+    top: -1.4em;
+    position: relative;
+    margin-left: 0.1em;
+    color: var(--muted);
+  }
+
+  /* ---------- About ---------- */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: clamp(32px, 6vw, 96px);
+    align-items: start;
+    padding-bottom: 80px;
+  }
+
+  .portrait {
+    aspect-ratio: 4 / 5;
+    border-radius: 4px;
+    background: linear-gradient(155deg, #cfcfca 0%, #a9a9a1 45%, #7d7d74 100%);
+  }
+
+  .about-copy p {
+    font-size: clamp(16px, 2vw, 20px);
+    line-height: 1.55;
+    color: var(--text);
+    max-width: 54ch;
+  }
+
+  .about-copy p + p { margin-top: 16px; }
+
+  .involvement {
+    margin-top: 24px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .meta-row {
+    margin-top: 48px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+
+  .meta-pair .label { margin-bottom: 6px; }
+  .meta-pair .value { font-size: 15px; font-weight: 500; }
+
+  @media (max-width: 860px) {
+    .about-grid { grid-template-columns: 1fr; }
+    .portrait { max-width: 280px; }
+    .meta-row { grid-template-columns: repeat(2, 1fr); gap: 28px; }
+  }
+
+  /* ---------- Experience ---------- */
+  .exp-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 28px 0;
+    flex-wrap: wrap;
+  }
+
+  .exp-company {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(26px, 4.5vw, 44px);
+    flex: 1 1 260px;
+  }
+
+  .exp-meta {
+    display: flex;
+    gap: 40px;
+    flex: 1 1 320px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .exp-meta .meta-pair { min-width: 140px; }
+
+  .exp-dates {
+    font-size: 12px;
+    color: var(--muted);
+    flex: 0 0 auto;
+  }
+
+  @media (max-width: 700px) {
+    .exp-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .exp-company { flex: 0 0 auto; }
+    .exp-meta { flex: 0 0 auto; justify-content: flex-start; gap: 28px; width: 100%; }
+  }
+
+  /* ---------- Projects ---------- */
+  .arrow-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: transform 0.3s ease, background 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .arrow-btn span { display: inline-block; transition: transform 0.3s ease; }
+
+  a:hover .arrow-btn span { transform: rotate(45deg); }
+  a:hover .arrow-btn { background: #ffffff; }
+
+  .featured-card {
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden;
+    aspect-ratio: 16 / 8.5;
+    background: linear-gradient(160deg, #1c1f1a 0%, #2c3524 45%, #10120d 100%);
+    display: block;
+  }
+
+  .featured-card img.proj-img,
+  .row-card img.proj-img,
+  .grid-card img.proj-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+  }
+
+  .featured-card:hover img.proj-img,
+  .row-card:hover img.proj-img,
+  .grid-card:hover img.proj-img {
+    transform: scale(1.03);
+  }
+
+  .featured-inner {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: clamp(20px, 3.5vw, 40px);
+    color: #F3F3F1;
+  }
+
+  .featured-top {
+    position: absolute;
+    top: clamp(20px, 3.5vw, 40px);
+    right: clamp(20px, 3.5vw, 40px);
+  }
+
+  .featured-title {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(36px, 6vw, 72px);
+    line-height: 0.95;
+  }
+
+  .featured-year {
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: rgba(243,243,241,0.7);
+    margin-top: 8px;
+    text-transform: uppercase;
+  }
+
+  .proj-rows { padding: 40px 0 0; }
+
+  .row-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(24px, 5vw, 64px);
+    align-items: center;
+    padding: 56px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .row-card:nth-of-type(even) .row-media { order: 2; }
+  .row-card:nth-of-type(even) .row-text { order: 1; }
+
+  .row-media {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .row-media.grad-1 { background: linear-gradient(150deg, #d7d2c8 0%, #a8998a 100%); }
+  .row-media.grad-2 { background: linear-gradient(150deg, #c9d6d8 0%, #7f9a9d 100%); }
+  .row-media.grad-3 { background: linear-gradient(150deg, #d8cfd6 0%, #9c8a97 100%); }
+
+  .row-title {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(30px, 4.5vw, 52px);
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+
+  .row-meta {
+    display: flex;
+    gap: 36px;
+    margin: 20px 0 24px;
+    flex-wrap: wrap;
+  }
+
+  .row-year { font-size: 13px; color: var(--muted); }
+
+  .row-link { display: inline-flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 500; }
+  .row-link .arrow-btn { width: 40px; height: 40px; background: var(--pill-bg); border: 1px solid var(--pill-border); font-size: 15px; }
+  a:hover .row-link .arrow-btn { background: var(--text); color: var(--bg); }
+
+  @media (max-width: 760px) {
+    .row-card { grid-template-columns: 1fr; padding: 36px 0; }
+    .row-card .row-media { order: 1 !important; }
+    .row-card .row-text { order: 2 !important; }
+  }
+
+  .proj-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(20px, 3vw, 32px);
+    padding: 56px 0 96px;
+  }
+
+  .grid-card {
+    display: block;
+  }
+
+  .grid-media {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .grid-media.grad-4 { background: linear-gradient(150deg, #d4d0c3 0%, #8f8a72 100%); }
+  .grid-media.grad-5 { background: linear-gradient(150deg, #cdd3c9 0%, #869180 100%); }
+  .grid-media.grad-6 { background: linear-gradient(150deg, #d9d2cf 0%, #a89b93 100%); }
+
+  .grid-title {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(20px, 2.6vw, 26px);
+  }
+
+  .grid-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+
+  @media (max-width: 860px) {
+    .proj-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 560px) {
+    .proj-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- Footer ---------- */
+  footer {
+    padding: 96px var(--gutter) 40px;
+  }
+
+  .say-hi {
+    font-family: var(--display);
+    font-weight: 300;
+    font-size: clamp(64px, 14vw, 160px);
+    line-height: 0.86;
+  }
+
+  .footer-links {
+    margin-top: 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .footer-email {
+    margin-top: 20px;
+    font-size: clamp(16px, 2.2vw, 22px);
+    color: var(--muted);
+  }
+
+  .copyright {
+    margin-top: 40px;
+    padding-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <a class="wordmark" href="#top">TYLER QUACH</a>
+  <nav class="nav-pills">
+    <a class="pill" href="#about">About</a>
+    <a class="pill" href="#experience">Experience</a>
+    <a class="pill" href="#projects">Projects</a>
+    <a class="pill" href="#travel">Travel</a>
+  </nav>
+</header>
+
+<main id="top">
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1 class="hero-heading">TYLER QUACH<sup>27</sup></h1>
+    <p class="hero-sub">CS @ Oregon State — ML &amp; software engineering</p>
+    <div class="pill-row">
+      <a class="pill" href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+      <a class="pill" href="https://linkedin.com/" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="pill" href="./resume.pdf" target="_blank" rel="noopener">Resume</a>
+      <a class="pill" href="mailto:tylertq283@gmail.com">Email</a>
+    </div>
+  </section>
+
+  <div class="hairline" style="margin-top: 64px;"></div>
+
+  <!-- About -->
+  <section id="about">
+    <div class="section-head reveal">
+      <h2 class="section-title">About</h2>
+    </div>
+    <div class="about-grid">
+      <div class="portrait reveal" role="img" aria-label="Portrait placeholder"></div>
+      <div class="about-copy reveal">
+        <p>I like building things that touch the real world — farms, flights, campuses — and finding the calm, curious way through a hard problem. Most of my work sits at the intersection of ML and software: systems that reason, not just predict.</p>
+        <p>Outside of code, I'm usually planning the next trip. Eleven-plus countries in and still adding pins to the map.</p>
+        <div class="involvement">On campus: GDG · App Dev Club · VLC</div>
+        <div class="meta-row" id="travel">
+          <div class="meta-pair">
+            <div class="label">Based in</div>
+            <div class="value">Corvallis, OR</div>
+          </div>
+          <div class="meta-pair">
+            <div class="label">Studying</div>
+            <div class="value">Computer Science</div>
+          </div>
+          <div class="meta-pair">
+            <div class="label">Focus</div>
+            <div class="value">ML &amp; Software Eng.</div>
+          </div>
+          <div class="meta-pair">
+            <div class="label">Countries visited</div>
+            <div class="value">11+</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="hairline"></div>
+
+  <!-- Experience -->
+  <section id="experience">
+    <div class="section-head reveal">
+      <h2 class="section-title">Experience</h2>
+    </div>
+
+    <div class="hairline"></div>
+    <div class="exp-row reveal">
+      <div class="exp-company">Deloitte</div>
+      <div class="exp-meta">
+        <div class="meta-pair">
+          <div class="label">Role</div>
+          <div class="value">Software Engineering Intern</div>
+        </div>
+        <div class="meta-pair">
+          <div class="label">Stack</div>
+          <div class="value">TBD</div>
+        </div>
+      </div>
+      <div class="exp-dates">2025</div>
+    </div>
+    <div class="hairline"></div>
+
+    <div class="exp-row reveal">
+      <div class="exp-company">Oregon State University</div>
+      <div class="exp-meta">
+        <div class="meta-pair">
+          <div class="label">Role</div>
+          <div class="value">ML Research Assistant</div>
+        </div>
+        <div class="meta-pair">
+          <div class="label">Stack</div>
+          <div class="value">Neural-symbolic constraints, MoE routing</div>
+        </div>
+      </div>
+      <div class="exp-dates">2024 — Present</div>
+    </div>
+    <div class="hairline"></div>
+
+    <div class="exp-row reveal">
+      <div class="exp-company">Oregon State EECS</div>
+      <div class="exp-meta">
+        <div class="meta-pair">
+          <div class="label">Role</div>
+          <div class="value">Undergraduate Learning Assistant, CS 162</div>
+        </div>
+        <div class="meta-pair">
+          <div class="label">Stack</div>
+          <div class="value">C, Systems Programming</div>
+        </div>
+      </div>
+      <div class="exp-dates">2024</div>
+    </div>
+    <div class="hairline"></div>
+
+    <div class="exp-row reveal">
+      <div class="exp-company">Coordinator</div>
+      <div class="exp-meta">
+        <div class="meta-pair">
+          <div class="label">Role</div>
+          <div class="value">Mobile Development Intern</div>
+        </div>
+        <div class="meta-pair">
+          <div class="label">Stack</div>
+          <div class="value">iOS, Swift — NVIDIA Inception startup</div>
+        </div>
+      </div>
+      <div class="exp-dates">2023</div>
+    </div>
+    <div class="hairline"></div>
+  </section>
+
+  <!-- Projects -->
+  <section id="projects">
+    <div class="section-head reveal">
+      <h2 class="section-title">Projects<sup>7</sup></h2>
+    </div>
+
+    <a class="featured-card reveal" href="https://github.com/" target="_blank" rel="noopener">
+      <img class="proj-img" src="images/farmos.jpg" alt="" onerror="this.style.display='none'">
+      <div class="featured-top"><div class="arrow-btn"><span>↗</span></div></div>
+      <div class="featured-inner">
+        <div class="featured-title">FarmOS</div>
+        <div class="featured-year">2024 · STACK — TBD</div>
+      </div>
+    </a>
+
+    <div class="proj-rows">
+      <a class="row-card reveal" href="https://github.com/" target="_blank" rel="noopener">
+        <div class="row-media grad-1">
+          <img class="proj-img" src="images/hallucination-detector.jpg" alt="" onerror="this.style.display='none'">
+        </div>
+        <div class="row-text">
+          <div class="row-title">AI Hallucination Detector</div>
+          <div class="row-meta">
+            <div class="meta-pair">
+              <div class="label">Stack</div>
+              <div class="value">TBD</div>
+            </div>
+            <div class="row-year">2024</div>
+          </div>
+          <div class="row-link"><div class="arrow-btn"><span>↗</span></div> View project</div>
+        </div>
+      </a>
+
+      <a class="row-card reveal" href="https://github.com/" target="_blank" rel="noopener">
+        <div class="row-media grad-2">
+          <img class="proj-img" src="images/aerosearch.jpg" alt="" onerror="this.style.display='none'">
+        </div>
+        <div class="row-text">
+          <div class="row-title">AeroSearch</div>
+          <div class="row-meta">
+            <div class="meta-pair">
+              <div class="label">Stack</div>
+              <div class="value">TBD</div>
+            </div>
+            <div class="row-year">2023</div>
+          </div>
+          <div class="row-link"><div class="arrow-btn"><span>↗</span></div> View project</div>
+        </div>
+      </a>
+
+      <a class="row-card reveal" href="https://github.com/" target="_blank" rel="noopener">
+        <div class="row-media grad-3">
+          <img class="proj-img" src="images/gate-tracker.jpg" alt="" onerror="this.style.display='none'">
+        </div>
+        <div class="row-text">
+          <div class="row-title">Gate Tracker</div>
+          <div class="row-meta">
+            <div class="meta-pair">
+              <div class="label">Stack</div>
+              <div class="value">TBD</div>
+            </div>
+            <div class="row-year">2023</div>
+          </div>
+          <div class="row-link"><div class="arrow-btn"><span>↗</span></div> View project</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="proj-grid">
+      <a class="grid-card reveal" href="https://github.com/" target="_blank" rel="noopener">
+        <div class="grid-media grad-4">
+          <img class="proj-img" src="images/shell.jpg" alt="" onerror="this.style.display='none'">
+        </div>
+        <div class="grid-title">Small Shell in C</div>
+        <div class="grid-meta">
+          <div class="row-year">2023 · STACK — C</div>
+          <div class="arrow-btn" style="width:36px;height:36px;font-size:13px;"><span>↗</span></div>
+        </div>
+      </a>
+
+      <a class="grid-card reveal" href="https://github.com/" target="_blank" rel="noopener">
+        <div class="grid-media grad-5">
+          <img class="proj-img" src="images/nba.jpg" alt="" onerror="this.style.display='none'">
+        </div>
+        <div class="grid-title">NBA Player Efficiency Index</div>
+        <div class="grid-meta">
+          <div class="row-year">2023 · STACK — TBD</div>
+          <div class="arrow-btn" style="width:36px;height:36px;font-size:13px;"><span>↗</span></div>
+        </div>
+      </a>
+
+      <a class="grid-card reveal" href="https://github.com/" target="_blank" rel="noopener">
+        <div class="grid-media grad-6">
+          <img class="proj-img" src="images/expense-tracker.jpg" alt="" onerror="this.style.display='none'">
+        </div>
+        <div class="grid-title">OCR Expense Tracker</div>
+        <div class="grid-meta">
+          <div class="row-year">2022 · STACK — TBD</div>
+          <div class="arrow-btn" style="width:36px;height:36px;font-size:13px;"><span>↗</span></div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <div class="hairline"></div>
+
+  <!-- Footer / Contact -->
+  <footer id="contact">
+    <h2 class="say-hi reveal">SAY HI</h2>
+    <div class="footer-email reveal"><a href="mailto:tylertq283@gmail.com">tylertq283@gmail.com</a></div>
+    <div class="footer-links reveal">
+      <a class="pill" href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+      <a class="pill" href="https://linkedin.com/" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="pill" href="./resume.pdf" target="_blank" rel="noopener">Resume</a>
+    </div>
+    <div class="hairline" style="margin-top: 56px;"></div>
+    <div class="copyright">
+      <span>© <span id="year"></span> Tyler Quach</span>
+      <span>Built with care in Oregon</span>
+    </div>
+  </footer>
+
+</main>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Scroll-reveal: elements are visible by default; JS only adds the
+  // animation class, so nothing breaks if this script fails to run.
+  (function () {
+    var els = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window) || !els.length) return;
+
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+
+    els.forEach(function (el) { io.observe(el); });
+  })();
+</script>
+
+</body>
+</html>

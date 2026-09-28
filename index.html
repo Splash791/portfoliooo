@@ -26,22 +26,25 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  /* All scroll-container-defining properties (overflow, scroll-snap-type,
+     scroll-behavior) live together on html. Splitting them between html
+     and body is ambiguous across engines — per the CSS overflow spec,
+     a body with its own overflow can have that overflow "propagate" up
+     to the viewport, which silently moves the real scrolling box and
+     breaks anchor navigation / scroll-snap declared on the wrong
+     element. Keeping them all on one element avoids that entirely. */
   html {
+    overflow-x: hidden;
+    overflow-y: auto;
     scroll-behavior: smooth;
+    scroll-snap-type: y proximity;
   }
 
-  /* overflow-x: hidden here makes body (not html) the actual scrolling
-     box per the CSS overflow spec, so scroll-snap-type and
-     scroll-behavior both have to live on body to take effect. */
   body {
     background: var(--bg);
     color: var(--text);
     font-family: var(--body);
     -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
-    overflow-y: auto;
-    scroll-behavior: smooth;
-    scroll-snap-type: y proximity;
   }
 
   img { display: block; max-width: 100%; }
@@ -177,11 +180,35 @@
   }
 
   .hero-sub {
-    margin-top: 20px;
+    margin-top: 32px;
     font-size: clamp(14px, 1.6vw, 18px);
     color: var(--muted);
     font-style: italic;
     max-width: 40ch;
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 0.6fr;
+    align-items: center;
+    gap: clamp(32px, 6vw, 80px);
+  }
+
+  .hero-photo {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    max-width: 320px;
+    width: 100%;
+    justify-self: end;
+    border-radius: 4px;
+    overflow: hidden;
+    background: linear-gradient(155deg, #cfcfca 0%, #a9a9a1 45%, #7d7d74 100%);
+  }
+
+  @media (max-width: 860px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .hero-photo { justify-self: start; max-width: 240px; order: 2; margin-top: 40px; }
+    .hero-text { order: 1; }
   }
 
 
@@ -274,50 +301,116 @@
     max-width: 56ch;
   }
 
-  .travel-body .meta-row { grid-template-columns: repeat(4, 1fr); }
-
-  .chip-row {
+  .globe-wrap {
     margin-top: 48px;
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    flex-direction: column;
+    align-items: center;
   }
 
-  .chip {
-    background: var(--pill-bg);
-    border: 1px solid var(--pill-border);
-    border-radius: 100px;
-    padding: 8px 16px;
-    font-size: 12px;
-    font-weight: 500;
+  .globe {
+    position: relative;
+    width: clamp(220px, 30vw, 340px);
+    aspect-ratio: 1 / 1;
   }
 
-  @media (max-width: 860px) {
-    .travel-body .meta-row { grid-template-columns: repeat(2, 1fr); gap: 28px; }
+  .globe-sphere {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    overflow: hidden;
+    background: radial-gradient(circle at 34% 30%, #e4e4e0 0%, #b9b9b2 38%, #86867d 72%, #55554f 100%);
+    box-shadow: inset -18px -18px 50px rgba(0, 0, 0, 0.35), 0 24px 48px rgba(0, 0, 0, 0.14);
+  }
+
+  /* A repeating stripe pattern clipped to the circle and slid
+     horizontally gives the impression of a rotating globe without any
+     3D library — just CSS. */
+  .globe-sphere::after {
+    content: '';
+    position: absolute;
+    inset: -10% -40%;
+    background-image: repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 14px,
+      rgba(255, 255, 255, 0.16) 14px,
+      rgba(255, 255, 255, 0.16) 15px
+    );
+    animation: globe-spin 14s linear infinite;
+  }
+
+  .js .globe-sphere::after { animation-play-state: running; }
+
+  @keyframes globe-spin {
+    from { transform: translateX(0); }
+    to { transform: translateX(-120px); }
+  }
+
+  .globe-pin {
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    margin: -13px 0 0 -13px;
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .globe-pin-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--text);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 0 rgba(17, 17, 17, 0.35);
+    transition: transform 0.2s ease;
+    animation: globe-pin-pulse 2.4s ease-out infinite;
+  }
+
+  .globe-pin:hover .globe-pin-dot,
+  .globe-pin:focus-visible .globe-pin-dot {
+    transform: scale(1.35);
+  }
+
+  @keyframes globe-pin-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(17, 17, 17, 0.35); }
+    70% { box-shadow: 0 0 0 8px rgba(17, 17, 17, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(17, 17, 17, 0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .globe-sphere::after { animation: none; }
+    .globe-pin-dot { animation: none; }
   }
 
   /* ---------- Experience ---------- */
+  /* Grid, not flex: a fixed-width company column means Role (and the
+     dates/toggle) line up at the same x across every row, regardless
+     of how long each company name is. */
   .exp-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: clamp(220px, 28vw, 340px) 1fr auto;
     align-items: baseline;
-    justify-content: space-between;
     gap: 24px;
     padding: 28px 0;
-    flex-wrap: wrap;
   }
 
   .exp-company {
     font-family: var(--display);
     font-weight: 400;
     font-size: clamp(26px, 4.5vw, 44px);
-    flex: 1 1 260px;
+    min-width: 0;
   }
 
   .exp-meta {
     display: flex;
     gap: 40px;
-    flex: 1 1 320px;
-    justify-content: flex-end;
+    justify-content: flex-start;
     flex-wrap: wrap;
   }
 
@@ -332,7 +425,6 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    flex: 0 0 auto;
   }
 
   /* details/summary: the whole row toggles the description bullets */
@@ -406,9 +498,8 @@
   }
 
   @media (max-width: 700px) {
-    .exp-row { flex-direction: column; align-items: flex-start; gap: 10px; }
-    .exp-company { flex: 0 0 auto; }
-    .exp-meta { flex: 0 0 auto; justify-content: flex-start; gap: 28px; width: 100%; }
+    .exp-row { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+    .exp-meta { justify-content: flex-start; gap: 28px; width: 100%; }
     .exp-right { width: 100%; justify-content: space-between; }
   }
 
@@ -442,7 +533,8 @@
 
   .featured-card img.proj-img,
   .row-card img.proj-img,
-  .grid-card img.proj-img {
+  .grid-card img.proj-img,
+  .hero-photo img.proj-img {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -484,7 +576,7 @@
     font-size: 12px;
     letter-spacing: 0.06em;
     color: rgba(243,243,241,0.7);
-    margin-top: 8px;
+    margin-top: 16px;
     text-transform: uppercase;
   }
 
@@ -730,8 +822,15 @@
 
   <!-- Hero -->
   <section id="hero" class="hero page page--center">
-    <h1 class="hero-heading">TYLER QUACH</h1>
-    <p class="hero-sub">Senior studying CS at Oregon State</p>
+    <div class="hero-grid">
+      <div class="hero-text">
+        <h1 class="hero-heading">TYLER QUACH</h1>
+        <p class="hero-sub">Senior studying CS at Oregon State</p>
+      </div>
+      <div class="hero-photo reveal" role="img" aria-label="Portrait placeholder">
+        <img class="proj-img" src="images/hero.jpg" alt="" onerror="this.style.display='none'">
+      </div>
+    </div>
   </section>
 
   <div class="hairline" style="margin-top: 64px;"></div>
@@ -757,7 +856,7 @@
     <div class="section-head reveal">
       <h2 class="section-title">Experience</h2>
     </div>
-    <div class="label" style="margin: -24px 0 24px;">Click a role to expand it</div>
+    <div class="label" style="margin: 0 0 32px;">Click a role to expand it</div>
 
     <div class="hairline"></div>
     <details class="exp-item reveal">
@@ -938,42 +1037,23 @@
   <!-- Travel -->
   <section id="travel" class="page page--center">
     <div class="section-head reveal">
-      <h2 class="section-title">Travel<sup>11+</sup></h2>
+      <h2 class="section-title">Travel</h2>
     </div>
     <div class="travel-body">
-      <p class="travel-copy reveal">Eleven-plus countries and counting — I plan trips the way I plan projects: pick a hard destination, figure out logistics later.</p>
-      <div class="meta-row reveal">
-        <div class="meta-pair">
-          <div class="label">Continents</div>
-          <div class="value">TBD</div>
+      <p class="travel-copy reveal">Always counting down to the next one — I plan trips the way I plan projects: pick a hard destination, figure out logistics later.</p>
+      <div class="globe-wrap reveal">
+        <div class="globe" id="globe">
+          <div class="globe-sphere"></div>
+          <button class="globe-pin" type="button" style="top: 28%; left: 25%;" data-trip="canada" aria-label="Canada"><span class="globe-pin-dot"></span></button>
+          <button class="globe-pin" type="button" style="top: 22%; left: 38%;" data-trip="iceland" aria-label="Iceland"><span class="globe-pin-dot"></span></button>
+          <button class="globe-pin" type="button" style="top: 35%; left: 50%;" data-trip="italy" aria-label="Italy"><span class="globe-pin-dot"></span></button>
+          <button class="globe-pin" type="button" style="top: 30%; left: 68%;" data-trip="japan" aria-label="Japan"><span class="globe-pin-dot"></span></button>
+          <button class="globe-pin" type="button" style="top: 42%; left: 65%;" data-trip="south-korea" aria-label="South Korea"><span class="globe-pin-dot"></span></button>
+          <button class="globe-pin" type="button" style="top: 48%; left: 72%;" data-trip="thailand" aria-label="Thailand"><span class="globe-pin-dot"></span></button>
+          <button class="globe-pin" type="button" style="top: 62%; left: 30%;" data-trip="peru" aria-label="Peru"><span class="globe-pin-dot"></span></button>
         </div>
-        <div class="meta-pair">
-          <div class="label">Favorite so far</div>
-          <div class="value">TBD</div>
-        </div>
-        <div class="meta-pair">
-          <div class="label">Next trip</div>
-          <div class="value">TBD</div>
-        </div>
-        <div class="meta-pair">
-          <div class="label">Countries visited</div>
-          <div class="value">11+</div>
-        </div>
+        <div class="label" style="margin-top: 20px; text-align: center;">Click a pin to see the trip</div>
       </div>
-      <div class="chip-row reveal">
-        <span class="chip">Japan</span>
-        <span class="chip">Vietnam</span>
-        <span class="chip">Portugal</span>
-        <span class="chip">Iceland</span>
-        <span class="chip">Peru</span>
-        <span class="chip">Thailand</span>
-        <span class="chip">Italy</span>
-        <span class="chip">Canada</span>
-        <span class="chip">Mexico</span>
-        <span class="chip">South Korea</span>
-        <span class="chip">France</span>
-      </div>
-      <div class="label" style="margin-top: 14px;">Placeholder list — swap in your real countries</div>
     </div>
   </section>
 
@@ -1020,6 +1100,27 @@
   </div>
 </div>
 
+<!-- Travel pin overlay (reuses the project overlay's look) -->
+<div class="proj-overlay" id="trip-overlay" hidden>
+  <div class="proj-modal" role="dialog" aria-modal="true" aria-labelledby="trip-modal-title">
+    <button class="proj-modal-close" id="trip-modal-close" type="button" aria-label="Close">
+      <span>+</span>
+    </button>
+    <div class="proj-modal-media">
+      <img id="trip-modal-img" src="" alt="" onerror="this.style.display='none'">
+    </div>
+    <div class="proj-modal-body">
+      <div class="proj-modal-top">
+        <h3 class="proj-modal-title" id="trip-modal-title"></h3>
+        <div class="proj-modal-meta">
+          <span id="trip-modal-year"></span>
+        </div>
+      </div>
+      <p class="proj-modal-desc" id="trip-modal-desc"></p>
+    </div>
+  </div>
+</div>
+
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -1051,7 +1152,7 @@
         description: 'Indexed 300k+ aircraft records with pgvector similarity search and Redis caching, achieving sub-100ms query latency. Built an ingestion pipeline syncing live ADS-B flight positions and airline data with automated scheduling.'
       },
       'gate-tracker': {
-        title: 'Gate Tracker', year: '2023', stack: 'TBD',
+        title: 'Gate Tracker', year: '2023', stack: 'Add your stack',
         image: 'images/gate-tracker.jpg',
         github: 'https://github.com/Splash791',
         description: 'Placeholder description — swap in your own. A mobile app for tracking flight gate changes and departure updates in real time.'
@@ -1063,13 +1164,13 @@
         description: 'Placeholder description — swap in your own. A Unix-style shell built from scratch in C, supporting piping, redirection, and built-in commands.'
       },
       'nba': {
-        title: 'NBA Player Efficiency Index', year: '2023', stack: 'TBD',
+        title: 'NBA Player Efficiency Index', year: '2023', stack: 'Add your stack',
         image: 'images/nba.jpg',
         github: 'https://github.com/Splash791',
         description: 'Placeholder description — swap in your own. A dashboard that computes and visualizes an efficiency metric for NBA players from season stats.'
       },
       'expense-tracker': {
-        title: 'OCR Expense Tracker', year: '2022', stack: 'TBD',
+        title: 'OCR Expense Tracker', year: '2022', stack: 'Add your stack',
         image: 'images/expense-tracker.jpg',
         github: 'https://github.com/Splash791',
         description: 'Placeholder description — swap in your own. An app that scans receipts with OCR and automatically logs and categorizes expenses.'
@@ -1123,6 +1224,96 @@
         if (!PROJECTS[id]) return;
         e.preventDefault();
         openModal(id);
+      });
+    });
+
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) closeModal();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && overlay.classList.contains('is-open')) closeModal();
+    });
+  })();
+
+  // Travel globe: click a pin to see that trip — same overlay pattern
+  // as the project cards above, with its own small dataset.
+  (function () {
+    var TRIPS = {
+      'canada': {
+        title: 'Canada', year: 'Placeholder — add your dates',
+        image: 'images/travel-canada.jpg',
+        description: 'Placeholder — swap in your own trip story and photo.'
+      },
+      'iceland': {
+        title: 'Iceland', year: 'Placeholder — add your dates',
+        image: 'images/travel-iceland.jpg',
+        description: 'Placeholder — swap in your own trip story and photo.'
+      },
+      'italy': {
+        title: 'Italy', year: 'Placeholder — add your dates',
+        image: 'images/travel-italy.jpg',
+        description: 'Placeholder — swap in your own trip story and photo.'
+      },
+      'japan': {
+        title: 'Japan', year: 'Placeholder — add your dates',
+        image: 'images/travel-japan.jpg',
+        description: 'Placeholder — swap in your own trip story and photo.'
+      },
+      'south-korea': {
+        title: 'South Korea', year: 'Placeholder — add your dates',
+        image: 'images/travel-south-korea.jpg',
+        description: 'Placeholder — swap in your own trip story and photo.'
+      },
+      'thailand': {
+        title: 'Thailand', year: 'Placeholder — add your dates',
+        image: 'images/travel-thailand.jpg',
+        description: 'Placeholder — swap in your own trip story and photo.'
+      },
+      'peru': {
+        title: 'Peru', year: 'Placeholder — add your dates',
+        image: 'images/travel-peru.jpg',
+        description: 'Placeholder — swap in your own trip story and photo.'
+      }
+    };
+
+    var overlay = document.getElementById('trip-overlay');
+    var modalImg = document.getElementById('trip-modal-img');
+    var modalTitle = document.getElementById('trip-modal-title');
+    var modalYear = document.getElementById('trip-modal-year');
+    var modalDesc = document.getElementById('trip-modal-desc');
+    var closeBtn = document.getElementById('trip-modal-close');
+    if (!overlay) return;
+
+    var lastFocused = null;
+
+    function openModal(id) {
+      var t = TRIPS[id];
+      if (!t) return;
+      modalImg.src = t.image;
+      modalImg.style.display = '';
+      modalImg.alt = t.title;
+      modalTitle.textContent = t.title;
+      modalYear.textContent = t.year;
+      modalDesc.textContent = t.description;
+
+      lastFocused = document.activeElement;
+      overlay.hidden = false;
+      requestAnimationFrame(function () { overlay.classList.add('is-open'); });
+      document.body.style.overflow = 'hidden';
+      closeBtn.focus();
+    }
+
+    function closeModal() {
+      overlay.classList.remove('is-open');
+      document.body.style.overflow = '';
+      setTimeout(function () { overlay.hidden = true; }, 200);
+      if (lastFocused && lastFocused.focus) lastFocused.focus();
+    }
+
+    document.querySelectorAll('.globe-pin').forEach(function (pin) {
+      pin.addEventListener('click', function () {
+        openModal(pin.getAttribute('data-trip'));
       });
     });
 

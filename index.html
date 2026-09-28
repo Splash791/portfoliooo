@@ -21,18 +21,27 @@
     --display: 'Antonio', 'Big Shoulders Display', 'Oswald', sans-serif;
     --body: 'Inter', 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
     --gutter: clamp(20px, 5vw, 64px);
+    --nav-h: 86px;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  html { scroll-behavior: smooth; }
+  html {
+    scroll-behavior: smooth;
+  }
 
+  /* overflow-x: hidden here makes body (not html) the actual scrolling
+     box per the CSS overflow spec, so scroll-snap-type and
+     scroll-behavior both have to live on body to take effect. */
   body {
     background: var(--bg);
     color: var(--text);
     font-family: var(--body);
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    scroll-snap-type: y proximity;
   }
 
   img { display: block; max-width: 100%; }
@@ -40,6 +49,27 @@
   a { color: inherit; text-decoration: none; }
 
   section { padding: 0 var(--gutter); }
+
+  /* ---------- Full-page sections ---------- */
+  /* Each major section fills at least one viewport and snaps to the
+     top when scrolled to — proximity (not mandatory) so the shorter
+     pages (hero, about, travel, contact) feel like discrete screens
+     while the longer ones (experience, projects) stay freely
+     scrollable once you're inside them. scroll-margin-top clears the
+     sticky nav so a snapped or anchor-linked section isn't tucked
+     underneath it. */
+  .page {
+    scroll-snap-align: start;
+    scroll-margin-top: var(--nav-h);
+    min-height: calc(100svh - var(--nav-h));
+    box-sizing: border-box;
+  }
+
+  .page--center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
 
   .label {
     font-size: 10.5px;
@@ -105,7 +135,14 @@
     border-color: var(--text);
   }
 
+  .nav-pills .pill.is-active {
+    background: var(--text);
+    border-color: var(--text);
+    color: var(--bg);
+  }
+
   @media (max-width: 640px) {
+    :root { --nav-h: 72px; }
     header.nav { padding: 16px 16px; }
     .wordmark { font-size: 12px; flex-shrink: 0; }
     .nav-pills { gap: 6px; }
@@ -114,8 +151,8 @@
 
   /* ---------- Hero ---------- */
   .hero {
-    padding-top: clamp(40px, 12vh, 120px);
-    padding-bottom: clamp(40px, 8vh, 80px);
+    padding-top: clamp(24px, 4vh, 48px);
+    padding-bottom: clamp(24px, 4vh, 48px);
   }
 
   .hero-heading {
@@ -236,6 +273,37 @@
     .about-grid { grid-template-columns: 1fr; }
     .portrait { max-width: 280px; }
     .meta-row { grid-template-columns: repeat(2, 1fr); gap: 28px; }
+  }
+
+  /* ---------- Travel ---------- */
+  .travel-body { max-width: 760px; }
+
+  .travel-copy {
+    font-size: clamp(16px, 2vw, 20px);
+    line-height: 1.55;
+    max-width: 56ch;
+  }
+
+  .travel-body .meta-row { grid-template-columns: repeat(4, 1fr); }
+
+  .chip-row {
+    margin-top: 48px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip {
+    background: var(--pill-bg);
+    border: 1px solid var(--pill-border);
+    border-radius: 100px;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  @media (max-width: 860px) {
+    .travel-body .meta-row { grid-template-columns: repeat(2, 1fr); gap: 28px; }
   }
 
   /* ---------- Experience ---------- */
@@ -496,7 +564,7 @@
 <main id="top">
 
   <!-- Hero -->
-  <section class="hero">
+  <section id="hero" class="hero page page--center">
     <h1 class="hero-heading">TYLER QUACH<sup>27</sup></h1>
     <p class="hero-sub">CS @ Oregon State — ML &amp; software engineering</p>
     <div class="pill-row">
@@ -510,7 +578,7 @@
   <div class="hairline" style="margin-top: 64px;"></div>
 
   <!-- About -->
-  <section id="about">
+  <section id="about" class="page page--center">
     <div class="section-head reveal">
       <h2 class="section-title">About</h2>
     </div>
@@ -520,7 +588,7 @@
         <p>I like building things that touch the real world — farms, flights, campuses — and finding the calm, curious way through a hard problem. Most of my work sits at the intersection of ML and software: systems that reason, not just predict.</p>
         <p>Outside of code, I'm usually planning the next trip. Eleven-plus countries in and still adding pins to the map.</p>
         <div class="involvement">On campus: GDG · App Dev Club · VLC</div>
-        <div class="meta-row" id="travel">
+        <div class="meta-row">
           <div class="meta-pair">
             <div class="label">Based in</div>
             <div class="value">Corvallis, OR</div>
@@ -545,7 +613,7 @@
   <div class="hairline"></div>
 
   <!-- Experience -->
-  <section id="experience">
+  <section id="experience" class="page">
     <div class="section-head reveal">
       <h2 class="section-title">Experience</h2>
     </div>
@@ -617,7 +685,7 @@
   </section>
 
   <!-- Projects -->
-  <section id="projects">
+  <section id="projects" class="page">
     <div class="section-head reveal">
       <h2 class="section-title">Projects<sup>7</sup></h2>
     </div>
@@ -722,8 +790,52 @@
 
   <div class="hairline"></div>
 
+  <!-- Travel -->
+  <section id="travel" class="page page--center">
+    <div class="section-head reveal">
+      <h2 class="section-title">Travel<sup>11+</sup></h2>
+    </div>
+    <div class="travel-body">
+      <p class="travel-copy reveal">Eleven-plus countries and counting — I plan trips the way I plan projects: pick a hard destination, figure out logistics later.</p>
+      <div class="meta-row reveal">
+        <div class="meta-pair">
+          <div class="label">Continents</div>
+          <div class="value">TBD</div>
+        </div>
+        <div class="meta-pair">
+          <div class="label">Favorite so far</div>
+          <div class="value">TBD</div>
+        </div>
+        <div class="meta-pair">
+          <div class="label">Next trip</div>
+          <div class="value">TBD</div>
+        </div>
+        <div class="meta-pair">
+          <div class="label">Countries visited</div>
+          <div class="value">11+</div>
+        </div>
+      </div>
+      <div class="chip-row reveal">
+        <span class="chip">Japan</span>
+        <span class="chip">Vietnam</span>
+        <span class="chip">Portugal</span>
+        <span class="chip">Iceland</span>
+        <span class="chip">Peru</span>
+        <span class="chip">Thailand</span>
+        <span class="chip">Italy</span>
+        <span class="chip">Canada</span>
+        <span class="chip">Mexico</span>
+        <span class="chip">South Korea</span>
+        <span class="chip">France</span>
+      </div>
+      <div class="label" style="margin-top: 14px;">Placeholder list — swap in your real countries</div>
+    </div>
+  </section>
+
+  <div class="hairline"></div>
+
   <!-- Footer / Contact -->
-  <footer id="contact">
+  <footer id="contact" class="page page--center">
     <h2 class="say-hi reveal">SAY HI</h2>
     <div class="footer-email reveal"><a href="mailto:tylertq283@gmail.com">tylertq283@gmail.com</a></div>
     <div class="footer-links reveal">
@@ -759,6 +871,52 @@
     }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
 
     els.forEach(function (el) { io.observe(el); });
+  })();
+
+  // Active nav pill: highlights whichever page-section is currently in
+  // view, so the pills read as real tabs rather than plain anchor links.
+  // Falls back to no highlighting (links still work) if unsupported.
+  (function () {
+    var pills = document.querySelectorAll('.nav-pills .pill');
+    if (!('IntersectionObserver' in window) || !pills.length) return;
+
+    var pillFor = {};
+    pills.forEach(function (pill) {
+      var id = pill.getAttribute('href').slice(1);
+      pillFor[id] = pill;
+    });
+
+    var sections = Object.keys(pillFor)
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+    if (!sections.length) return;
+
+    var current = null;
+    function setActive(id) {
+      if (id === current) return;
+      current = id;
+      pills.forEach(function (pill) { pill.classList.remove('is-active'); });
+      var active = pillFor[id];
+      if (!active) return;
+      active.classList.add('is-active');
+      // Keep the active pill in view when the pill row scrolls
+      // horizontally on narrow screens — scroll only that row, never
+      // the page (a plain scrollIntoView here previously fought the
+      // page's own scroll-snap and caused it to jump between sections).
+      var row = active.closest('.nav-pills');
+      if (row) {
+        var target = active.offsetLeft - (row.clientWidth - active.offsetWidth) / 2;
+        row.scrollTo({ left: Math.max(0, target), behavior: 'smooth' });
+      }
+    }
+
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) setActive(entry.target.id);
+      });
+    }, { threshold: 0, rootMargin: '-40% 0px -55% 0px' });
+
+    sections.forEach(function (el) { io.observe(el); });
   })();
 </script>
 
